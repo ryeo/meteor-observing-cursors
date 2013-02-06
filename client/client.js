@@ -8,4 +8,14 @@ Meteor.startup(function () {
       console.log("allDocumentsCursor added: ", doc.text);
     }
   });
+
+  visibleDocumentsCursor = DocumentCollection.find(
+    { is_visible: true }
+  );
+
+  visibleDocumentsCursor.observe({
+    added: function (doc, beforeIndex) {
+      console.log("visibleDocumentsCursor added: ", doc.text);
+    }
+  });
 });
