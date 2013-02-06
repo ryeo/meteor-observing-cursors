@@ -16,6 +16,15 @@ Meteor.startup(function () {
   visibleDocumentsCursor.observe({
     added: function (doc, beforeIndex) {
       console.log("visibleDocumentsCursor added: ", doc.text);
+    },
+
+    changed: function (newDocument, atIndex, oldDocument) {
+    },
+
+    moved: function (document, oldIndex, newIndex) {
+    },
+
+    removed: function (oldDocument, atIndex) {
     }
   });
 });
