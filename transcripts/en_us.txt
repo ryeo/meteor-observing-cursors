@@ -1,0 +1,89 @@
+Cusor observers in Meteor are a way to listen for changes to a collection. We
+create observers on a cursor so that our observer callbacks only run if the
+change would impact our cursor's query.
+
+To get a more intuitive understanding of observers, I'm only going to focus on
+the client for now so we can play around in the browser's debugger. I'll cover
+server side observers in another screencast.
+
+To start, I'm going to create a cursor by calling the find method on a
+collection named "DocumentCollection." I've called it allDocumentsCursor because
+I haven't specified a selector, so the query will be for all documents in the
+collection.
+
+I can add observer functions by calling the observe method of the cursor and
+passing an object of callbacks for each type of event. We'll start off by
+responding to the "added" event and printing a message to the console.
+
+In the browser we can see the observer callback is called for each document that
+is added to the collection. In this case, the documents are being added one
+because I'm subscribing to the documents collection and I'm getting these
+documents from the server.
+
+Now, let's insert a new document into the collection. I'll give it an is_visible
+property and a text property. As we expect, the added callback we just created
+is called since the allDocumentsCursor is affected by all documents.
+
+But let's add another cursor that has a selector. We'll call it
+"visibleDocumentsCursor" and call the find method on DocumentCollection with a
+selector that says, "only give me documents where the is_visible property is
+true.
+
+I'll create an "added" observer on the new cursor, again that prints a simple
+console message when it's fired.
+
+Over in the browser I can see the observer added callbacks called as I receive
+the documents published from the server. You can see that the allDocumentsCursor
+added callback is called three times, because there are three total documents.
+But the visibleDocumentsCursor added callback is only called twice. That's
+because one of the documents is_visible property is false, so it doesn't affect
+the visibleDocumentsCursor.
+
+Let's take a closer look by inserting our own document into the collection. I'll
+set the is_visible property of the new document to true and give it a text
+value. When I insert the document into the DocumentCollection I can see that
+both my callbacks are called because the new document matches the selectors, or
+queries, for both cursors.
+
+Now let's create a document whose is_visible property is set to false. We should
+expect that the visibleDocumentsCursor will ignore it. When I insert the hidden
+document into the DocumentCollection we can see that only the allDocumentsCursor
+added callback is called.
+
+To understand what's going on under the hood, let's inspect the
+visibleDocumentsCursor in the debugger. The first thing to notice is a method
+called "selector_f." This is a compiled version of our selector. The function
+takes a document and returns true if our selector matches the document, and
+false if it doesn't match.
+
+So if we call the selector_f function of visibleDocumentsCursor with our hidden
+document, it returns false, telling us the cursor's selector doesn't match the
+document. But if we call selector_f on the allDocumentsCursor with the hidden
+document, it returns true because the allDocumentsCursor selects all documents
+in the collection.
+
+But we've been inserting our new documents by calling the insert method of the
+DocumentCollection. So when we do that, how does the collection know which
+cursor's are affected, and which observer callbacks to call? 
+
+To understand this, let's expand one of the cursors in the debugger and look at
+the collection itself. You can see that the collection has a property called
+queries that stores references to each cursor that references the collection. I
+can see two here because we created two cursors. And if I expand the first one I
+can see observer callback methods, and the selector_f function we looked at
+before.
+
+If we expand the visibleDocumentsCursor we can see it references the same
+collection. And if we manually dig into the collection we can call the
+selector_f function on each query, or cursor, and see whether the cursor is
+affected by the new document. The first query is our allDocumentsCursor so
+calling selector_f returns true. The second query is our visibleDocumentsCursor
+so calling selector_f returns false.
+
+It turns out, cursors can also deal with sort, skip and limits but we only
+focused on the selector. But this should be enough to give you a better idea of
+how collections and cursors work together, and how a cursor knows whether an
+added, changed or removed document should affect that cursor's observers.
+
+You can check out the documentation to read more about the observer callbacks
+and the specific method signatures.
