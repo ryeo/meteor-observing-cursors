@@ -1,4 +1,4 @@
-Cusor observers in Meteor are a way to listen for changes to a collection. We
+Cursor observers in Meteor are a way to listen for changes to a collection. We
 create observers on a cursor so that our observer callbacks only run if the
 change would impact our cursor's query.
 
@@ -16,8 +16,8 @@ passing an object of callbacks for each type of event. We'll start off by
 responding to the "added" event and printing a message to the console.
 
 In the browser we can see the observer callback is called for each document that
-is added to the collection. In this case, the documents are being added one
-because I'm subscribing to the documents collection and I'm getting these
+is added to the collection. In this case, the documents are being added one by
+one because I'm subscribing to the documents collection and I'm getting these
 documents from the server.
 
 Now, let's insert a new document into the collection. I'll give it an is_visible
